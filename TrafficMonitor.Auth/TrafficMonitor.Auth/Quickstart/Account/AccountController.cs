@@ -20,6 +20,7 @@ using IdentityServer4.Events;
 using IdentityServer4.Extensions;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using TrafficMonitor.Auth.Models;
 
 namespace IdentityServer4.Quickstart.UI
 {
@@ -31,7 +32,8 @@ namespace IdentityServer4.Quickstart.UI
     [SecurityHeaders]
     public class AccountController : Controller
     {
-        private readonly UserManager<IdentityUser> _userManager;
+        private readonly UserManager<ApplicationUser> _userManager;
+        private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly IIdentityServerInteractionService _interaction;
         private readonly IEventService _events;
         private readonly AccountService _account;
@@ -41,13 +43,37 @@ namespace IdentityServer4.Quickstart.UI
             IClientStore clientStore,
             IHttpContextAccessor httpContextAccessor,
             IEventService events,
-            UserManager<IdentityUser> userManager)
+            UserManager<ApplicationUser> userManager,
+            SignInManager<ApplicationUser> signInManager)
         {
             _userManager = userManager;
+            _signInManager = signInManager;
             _interaction = interaction;
             _events = events;
             _account = new AccountService(interaction, httpContextAccessor, clientStore);
+            //CreateTestUserAsync();
         }
+
+
+        private async Task CreateTestUserAsync()
+        {
+            var user = new ApplicationUser { UserName = "samthehuman", Email = "sam@sam.com" };
+            var result = await _userManager.CreateAsync(user, "Samsamsamsam@1");
+            if (result.Succeeded)
+            {
+                //await _signInManager.SignInAsync(user, isPersistent: false);
+
+                //Assign the Role as admin
+                //await _userManager.AddClaimAsync(user, new Claim(ClaimTypes.Role, "Administrator"));
+                await _userManager.AddClaimAsync(user, new Claim(ClaimTypes.Role, "Admin"));
+                await _userManager.AddClaimAsync(user, new Claim(ClaimTypes.Name, "Jeppe Ørneuld"));
+                await _signInManager.SignInAsync(user, isPersistent: false);
+
+            }
+            throw new Exception(":(");
+        }
+
+
 
         /// <summary>
         /// Show login page
@@ -194,7 +220,7 @@ namespace IdentityServer4.Quickstart.UI
             var user = await _userManager.FindByLoginAsync(provider, userId);
             if (user == null)
             {
-                user = new IdentityUser { UserName = Guid.NewGuid().ToString() };
+                user = new ApplicationUser { UserName = Guid.NewGuid().ToString() };
                 await _userManager.CreateAsync(user);
                 await _userManager.AddLoginAsync(user, new UserLoginInfo(provider, userId, provider));
             }

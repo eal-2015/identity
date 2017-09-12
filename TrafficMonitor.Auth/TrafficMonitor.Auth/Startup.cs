@@ -26,7 +26,7 @@ namespace TrafficMonitor.Auth
 
             //Identity framework store
             services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(connectionString));
-            services.AddIdentity<IdentityUser, IdentityRole>().AddEntityFrameworkStores<ApplicationDbContext>();
+            services.AddIdentity<ApplicationUser, IdentityRole>().AddEntityFrameworkStores<ApplicationDbContext>();
 
 
             services.AddIdentityServer()
@@ -36,7 +36,7 @@ namespace TrafficMonitor.Auth
                 //client & scope store
             .AddConfigurationStore(builder =>
                 builder.UseSqlServer(connectionString, options => options.MigrationsAssembly(migrationsAssembly)))
-            .AddAspNetIdentity<IdentityUser>()
+            .AddAspNetIdentity<ApplicationUser>()
 
             //Testing in memory stores
             .AddInMemoryClients(Clients.Get())
