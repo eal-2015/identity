@@ -23,6 +23,8 @@ namespace TrafficMonitor.Auth
             .AddInMemoryApiResources(Resources.GetApiResources())
             .AddTestUsers(Users.Get())
             .AddTemporarySigningCredential();
+
+            services.AddMvc();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -36,6 +38,8 @@ namespace TrafficMonitor.Auth
             }
 
             app.UseIdentityServer();
+            app.UseStaticFiles();
+            app.UseMvcWithDefaultRoute();
         }
     }
 }
