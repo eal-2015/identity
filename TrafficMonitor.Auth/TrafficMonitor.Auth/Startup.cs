@@ -10,6 +10,7 @@ using Microsoft.Extensions.Logging;
 using TrafficMonitor.Auth.Models;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 
 namespace TrafficMonitor.Auth
 {
@@ -23,6 +24,11 @@ namespace TrafficMonitor.Auth
                 @"Data Source=(LocalDb)\MSSQLLocalDB;database=TrafficMonitor.Auth;trusted_connection=yes;";
             var migrationsAssembly = typeof(Startup).GetTypeInfo().Assembly.GetName().Name;
 
+            //Identity framework store
+            services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(connectionString));
+            services.AddIdentity<IdentityUser, IdentityRole>().AddEntityFrameworkStores<ApplicationDbContext>();
+
+
             services.AddIdentityServer()
                 //Persisted grant store
             .AddOperationalStore(builder =>
@@ -30,17 +36,15 @@ namespace TrafficMonitor.Auth
                 //client & scope store
             .AddConfigurationStore(builder =>
                 builder.UseSqlServer(connectionString, options => options.MigrationsAssembly(migrationsAssembly)))
-                
-                
-                //Testing in memory stores
-            //.AddInMemoryClients(Clients.Get())
-            //.AddInMemoryIdentityResources(Resources.GetIdentityResources())
-            //.AddInMemoryApiResources(Resources.GetApiResources())
-            .AddTestUsers(Users.Get())
+            .AddAspNetIdentity<IdentityUser>()
+
+            //Testing in memory stores
+            .AddInMemoryClients(Clients.Get())
+            .AddInMemoryIdentityResources(Resources.GetIdentityResources())
+            .AddInMemoryApiResources(Resources.GetApiResources())
+            //.AddTestUsers(Users.Get())
             
-            .AddTemporarySigningCredential();
-            
-            
+            .AddTemporarySigningCredential();       
 
             services.AddMvc();
         }
@@ -55,6 +59,7 @@ namespace TrafficMonitor.Auth
                 app.UseDeveloperExceptionPage();
             }
 
+            app.UseIdentity();
             app.UseIdentityServer();
             app.UseStaticFiles();
             app.UseMvcWithDefaultRoute();
