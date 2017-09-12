@@ -8,6 +8,8 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using TrafficMonitor.Auth.Models;
+using System.Reflection;
+using Microsoft.EntityFrameworkCore;
 
 namespace TrafficMonitor.Auth
 {
@@ -17,12 +19,28 @@ namespace TrafficMonitor.Auth
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
+            const string connectionString =
+                @"Data Source=(LocalDb)\MSSQLLocalDB;database=TrafficMonitor.Auth;trusted_connection=yes;";
+            var migrationsAssembly = typeof(Startup).GetTypeInfo().Assembly.GetName().Name;
+
             services.AddIdentityServer()
-            .AddInMemoryClients(Clients.Get())
-            .AddInMemoryIdentityResources(Resources.GetIdentityResources())
-            .AddInMemoryApiResources(Resources.GetApiResources())
+                //Persisted grant store
+            .AddOperationalStore(builder =>
+                builder.UseSqlServer(connectionString, options => options.MigrationsAssembly(migrationsAssembly)))
+                //client & scope store
+            .AddConfigurationStore(builder =>
+                builder.UseSqlServer(connectionString, options => options.MigrationsAssembly(migrationsAssembly)))
+                
+                
+                //Testing in memory stores
+            //.AddInMemoryClients(Clients.Get())
+            //.AddInMemoryIdentityResources(Resources.GetIdentityResources())
+            //.AddInMemoryApiResources(Resources.GetApiResources())
             .AddTestUsers(Users.Get())
+            
             .AddTemporarySigningCredential();
+            
+            
 
             services.AddMvc();
         }
