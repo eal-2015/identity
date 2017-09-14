@@ -125,7 +125,10 @@ namespace TrafficMonitor.Auth.Controllers
                     //    $"Please confirm your account by clicking this link: <a href='{callbackUrl}'>link</a>");
                     await _signInManager.SignInAsync(user, isPersistent: false);
                     _logger.LogInformation(3, "User created a new account with password.");
-                    await _userManager.AddClaimAsync(user, new Claim(JwtClaimTypes.FamilyName, "Niggerwat"));
+
+                    //CLAIMS!
+                    //await _userManager.AddClaimAsync(user, new Claim(JwtClaimTypes.FamilyName, "Niggerwat"));
+
                     return RedirectToLocal(returnUrl);
                 }
                 AddErrors(result);
