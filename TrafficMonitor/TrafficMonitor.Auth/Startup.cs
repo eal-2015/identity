@@ -56,10 +56,12 @@ namespace TrafficMonitor.Auth
             // Adds IdentityServer
             services.AddIdentityServer()
                 .AddTemporarySigningCredential()
+                //Test From inmemory configuration
                 .AddInMemoryIdentityResources(InMemConfig.GetIdentityResources())
                 .AddInMemoryApiResources(InMemConfig.GetApiResources())
                 .AddInMemoryClients(InMemConfig.GetClients())
                 .AddTestUsers(InMemConfig.GetUsers())
+                //Sql database
                 .AddAspNetIdentity<ApplicationUser>();
         }
 
