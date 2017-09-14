@@ -12,6 +12,7 @@ using Microsoft.Extensions.Logging;
 using TrafficMonitor.Auth.Data;
 using TrafficMonitor.Auth.Models;
 using TrafficMonitor.Auth.Services;
+using System.Reflection;
 
 namespace TrafficMonitor.Auth
 {
@@ -47,11 +48,15 @@ namespace TrafficMonitor.Auth
                 .AddEntityFrameworkStores<ApplicationDbContext>()
                 .AddDefaultTokenProviders();
 
+
             services.AddMvc();
 
             // Add application services.
             services.AddTransient<IEmailSender, AuthMessageSender>();
             services.AddTransient<ISmsSender, AuthMessageSender>();
+
+            //This is necessary to target DbContexts not located in your hosting project - In this case, a nuget package
+            var migrationsAssembly = typeof(Startup).GetTypeInfo().Assembly.GetName().Name;
 
             // Adds IdentityServer
             services.AddIdentityServer()
@@ -61,8 +66,16 @@ namespace TrafficMonitor.Auth
                 .AddInMemoryApiResources(InMemConfig.GetApiResources())
                 .AddInMemoryClients(InMemConfig.GetClients())
                 .AddTestUsers(InMemConfig.GetUsers())
-                //Sql database
-                .AddAspNetIdentity<ApplicationUser>();
+                //Sql Identity DB
+                .AddAspNetIdentity<ApplicationUser>()
+                //Sql Persisted Grant Store - Saves consent
+                .AddOperationalStore(builder =>
+                    builder.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"),
+                    options => options.MigrationsAssembly(migrationsAssembly)))
+                //Sql Scope and Clients
+                .AddConfigurationStore(builder =>
+                 builder.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"),
+                 options => options.MigrationsAssembly(migrationsAssembly)));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
