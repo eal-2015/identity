@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using TrafficMonitor.Auth.Authorization;
 using IdentityServer4.Services;
 using TrafficMonitor.Auth.Authorization.Home;
+using Microsoft.AspNetCore.Authorization;
 
 namespace TrafficMonitor.Auth.Controllers
 {
@@ -24,16 +25,11 @@ namespace TrafficMonitor.Auth.Controllers
             return View();
         }
 
-        public IActionResult About()
-        {
-            ViewData["Message"] = "Your application description page.";
-
-            return View();
-        }
-
+        [Authorize]
+        [Route("/user")]
         public IActionResult Contact()
         {
-            ViewData["Message"] = "Your contact page.";
+            ViewData["Message"] = "Dine Identity Profil Oplysninger";
 
             return View();
         }
