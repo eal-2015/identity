@@ -40,11 +40,31 @@ namespace TrafficMonitor.Auth
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddCors(options =>
+            {
+                options.AddPolicy("default", p =>
+                {
+                    p.AllowAnyOrigin();
+                    p.AllowAnyMethod();
+                    p.AllowAnyHeader();
+                    p.AllowCredentials();
+                });
+            });
+
             // Add framework services.
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
 
-            services.AddIdentity<ApplicationUser, IdentityRole>()
+            services.AddIdentity<ApplicationUser, IdentityRole>(x =>
+            {
+                x.Cookies.ApplicationCookie.CookieName = "aid";
+                x.Cookies.ApplicationCookie.CookieDomain = "localhost";
+                x.Password.RequireDigit = false;
+                x.Password.RequiredLength = 3;
+                x.Password.RequireLowercase = false;
+                x.Password.RequireUppercase = false;
+                x.Password.RequireNonAlphanumeric = false;
+            })
                 .AddEntityFrameworkStores<ApplicationDbContext>()
                 .AddDefaultTokenProviders();
 
@@ -60,6 +80,7 @@ namespace TrafficMonitor.Auth
 
             // Adds IdentityServer
             services.AddIdentityServer()
+
                 .AddTemporarySigningCredential()
                 //Test From inmemory configuration
                 .AddInMemoryIdentityResources(InMemConfig.GetIdentityResources())
@@ -94,6 +115,8 @@ namespace TrafficMonitor.Auth
             {
                 app.UseExceptionHandler("/Home/Error");
             }
+
+            app.UseCors("default");
 
             app.UseStaticFiles();
 

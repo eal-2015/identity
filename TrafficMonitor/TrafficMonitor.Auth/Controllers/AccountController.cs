@@ -59,7 +59,6 @@ namespace TrafficMonitor.Auth.Controllers
         // POST: /Account/Login
         [HttpPost]
         [AllowAnonymous]
-        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Login(LoginViewModel model, string returnUrl = null)
         {
             ViewData["ReturnUrl"] = returnUrl;
@@ -91,6 +90,13 @@ namespace TrafficMonitor.Auth.Controllers
 
             // If we got this far, something failed, redisplay form
             return View(model);
+        }
+
+        [HttpPost("[action]")]
+        [AllowAnonymous]
+        public IActionResult Test()
+        {
+            return Json(new { message = "!#¤&/ this" });
         }
 
         //
