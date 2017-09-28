@@ -10,6 +10,9 @@ namespace TrafficMonitor.Auth.Data
 {
     public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     {
+        public DbSet<Profile> Profiles { get; set; }
+        public DbSet<Dashboard> Dashboards { get; set; }
+
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)
         {
@@ -21,6 +24,7 @@ namespace TrafficMonitor.Auth.Data
             // Customize the ASP.NET Identity model and override the defaults if needed.
             // For example, you can rename the ASP.NET Identity table names and more.
             // Add your customizations after calling base.OnModelCreating(builder);
+            
         }
     }
 }
