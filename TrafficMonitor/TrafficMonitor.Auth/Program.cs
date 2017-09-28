@@ -17,6 +17,7 @@ namespace TrafficMonitor.Auth
                 .UseIISIntegration()
                 .UseStartup<Startup>()
                 .UseApplicationInsights()
+                .UseUrls("http://localhost:5000", "https://localhost:5001")
                 .Build();
 
             host.Run();
